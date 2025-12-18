@@ -1,0 +1,15 @@
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\bin\Debug\net8.0\SmartHomes.Infrastructure.deps.json
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\bin\Debug\net8.0\SmartHomes.Infrastructure.dll
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\bin\Debug\net8.0\SmartHomes.Infrastructure.pdb
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\bin\Debug\net8.0\SmartHomes.Domain.dll
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\bin\Debug\net8.0\SmartHomes.Domain.pdb
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\SmartHomes.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\SmartHomes.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\SmartHomes.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\SmartHomes.Infrastructure.AssemblyInfo.cs
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\SmartHomes.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\SmartHomes.Infrastructure.csproj.CopyComplete
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\SmartHomes.Infrastructure.dll
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\refint\SmartHomes.Infrastructure.dll
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\SmartHomes.Infrastructure.pdb
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Infrastructure\obj\Debug\net8.0\ref\SmartHomes.Infrastructure.dll

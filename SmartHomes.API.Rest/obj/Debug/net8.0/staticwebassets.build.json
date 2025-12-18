@@ -1,0 +1,23 @@
+{
+  "Version": 1,
+  "Hash": "b/03GjKk412BpY6LAkNo3ZZUM4XcMz6q+uv3S+Z85Kw=",
+  "Source": "SmartHomes.API.Rest",
+  "BasePath": "_content/SmartHomes.API.Rest",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\rodra\\Ambiente de Trabalho\\SmartHomes\\SmartHomes.Services.Soap\\SmartHomes.Services.Soap.csproj",
+      "Version": 2,
+      "Source": "SmartHomes.Services.Soap",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,0 +1,11 @@
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\bin\Debug\net8.0\SmartHomes.Domain.deps.json
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\bin\Debug\net8.0\SmartHomes.Domain.dll
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\bin\Debug\net8.0\SmartHomes.Domain.pdb
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\SmartHomes.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\SmartHomes.Domain.AssemblyInfoInputs.cache
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\SmartHomes.Domain.AssemblyInfo.cs
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\SmartHomes.Domain.csproj.CoreCompileInputs.cache
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\SmartHomes.Domain.dll
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\refint\SmartHomes.Domain.dll
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\SmartHomes.Domain.pdb
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\ref\SmartHomes.Domain.dll

@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "2cP2msxrILpF2p2yC3bxlGQPymnJ4ch9Ke6cWMNkdFU=",
+  "Source": "SmartHomes.Services.Soap",
+  "BasePath": "_content/SmartHomes.Services.Soap",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="System.ServiceModel.Http" Version="8.1.1" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartHomes.Application\SmartHomes.Application.csproj" />
+    <ProjectReference Include="..\SmartHomes.Domain\SmartHomes.Domain.csproj" />
+    <ProjectReference Include="..\SmartHomes.Services.Soap\SmartHomes.Services.Soap.csproj" />
+  </ItemGroup>
+
+</Project>
