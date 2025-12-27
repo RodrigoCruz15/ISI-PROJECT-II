@@ -8,8 +8,9 @@ C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\SmartHomes.Application.AssemblyInfoInputs.cache
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\SmartHomes.Application.AssemblyInfo.cs
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\SmartHomes.Application.csproj.CoreCompileInputs.cache
-C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\SmartHomes.Application.csproj.CopyComplete
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\SmartHomes.Application.dll
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\refint\SmartHomes.Application.dll
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\SmartHomes.Application.pdb
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\ref\SmartHomes.Application.dll
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\SmartHomes.Application.sourcelink.json
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Application\obj\Debug\net8.0\SmartHom.4A9657A6.Up2Date

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartHomes.API.Rest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a87e281a51e8cd63e2f7cbf44eb36fc87160656")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartHomes.API.Rest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartHomes.API.Rest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

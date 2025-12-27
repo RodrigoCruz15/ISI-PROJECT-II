@@ -9,3 +9,4 @@ C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\refint\SmartHomes.Domain.dll
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\SmartHomes.Domain.pdb
 C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\ref\SmartHomes.Domain.dll
+C:\Users\rodra\Ambiente de Trabalho\SmartHomes\SmartHomes.Domain\obj\Debug\net8.0\SmartHomes.Domain.sourcelink.json
