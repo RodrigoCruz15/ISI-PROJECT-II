@@ -13,7 +13,7 @@ namespace SmartHomes.Application.Services
     /// <summary>
     /// Implementação da lógica de negócio para gestão de casas
     /// </summary>
-    internal class HomeService : IHomeService
+    public class HomeService : IHomeService
     {
         private readonly IHomeRepository _homeRepository;
 

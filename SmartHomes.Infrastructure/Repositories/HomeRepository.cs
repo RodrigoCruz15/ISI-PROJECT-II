@@ -109,7 +109,7 @@ namespace SmartHomes.Infrastructure.Repositories
         /// <summary>
         /// Atualiza uma casa existente
         /// </summary>
-        public async Task<bool> UpdateAsync(Guid id, Home home)  // ✅ Corrigido: era "UpdateASync"
+        public async Task<bool> UpdateAsync(Guid id, Home home) 
         {
             const string query = @"
                 UPDATE homes
