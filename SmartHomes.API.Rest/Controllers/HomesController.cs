@@ -109,5 +109,23 @@ namespace SmartHomes.API.Rest.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Obtem dados da casa com informacao meteorologica
+        /// </summary>
+        /// <param name="id">ID da casa</param>
+        /// <returns>Casa com clima e comparacao</returns>
+        [HttpGet("{id}/weather")]
+        [ProducesResponseType(typeof(HomeWithWeatherDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetHomeWithWeather(Guid id)
+        {
+            var response = await _soapClient.GetHomeWithWeatherAsync(id);
+
+            if (!response.Success)
+                return NotFound(new { message = response.Message });
+
+            return Ok(response.Data);
+        }
     }
 }

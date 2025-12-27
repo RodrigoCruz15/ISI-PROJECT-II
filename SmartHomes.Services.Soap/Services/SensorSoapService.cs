@@ -1,36 +1,43 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using SmartHomes.Domain.DTO;
 using SmartHomes.Domain.Interfaces;
 using SmartHomes.Services.Soap.Models;
-using SmartHomes.Domain.Entities;
-using SmartHomes.Domain.DTO;
-using System.Data.SqlTypes;
 
 namespace SmartHomes.Services.Soap.Services
 {
+    /// <summary>
+    /// Implementacao do servico SOAP para gestao de sensores
+    /// Atua como camada de integracao entre a API REST e a Application
+    /// </summary>
     public class SensorSoapService : ISensorSoapService
     {
+        private readonly ISensorService _sensorService;
 
-        private readonly ISensorRepository _sensorRepository;
-        private readonly IHomeRepository _homeRepository;
-
-        public SensorSoapService(ISensorRepository sensorRepository, IHomeRepository homeRepository)
+        public SensorSoapService(ISensorService sensorService)
         {
-            _sensorRepository = sensorRepository;
-            _homeRepository = homeRepository;
+            _sensorService = sensorService;
         }
 
+        /// <summary>
+        /// Obtem um sensor pelo ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<SoapResponse<SensorDto>> GetSensorByIdAsync(Guid id)
         {
             try
             {
-                var sensor = await _sensorRepository.GetByIdAsync(id);
+                var sensor = await _sensorService.GetSensorByIdAsync(id);
 
                 if (sensor == null)
                 {
                     return new SoapResponse<SensorDto>
                     {
                         Success = false,
-                        Message = $"Sensor com ID {id} nao encontrada"
+                        Message = $"Sensor com ID {id} não encontrado"
                     };
                 }
 
@@ -38,7 +45,7 @@ namespace SmartHomes.Services.Soap.Services
                 {
                     Success = true,
                     Message = "Sensor encontrado com sucesso",
-                    Data = MapToDto(sensor)
+                    Data = sensor
                 };
             }
             catch (Exception ex)
@@ -59,14 +66,14 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var sensors = await _sensorRepository.GetAllAsync();
-                var sensorDtos = sensors.Select(MapToDto).ToList();
+                var sensors = await _sensorService.GetAllSensorAsync();
+                var sensorsList = sensors.ToList();
 
                 return new SoapResponse<List<SensorDto>>
                 {
                     Success = true,
-                    Message = $"{sensorDtos.Count} sensor(es) encontrados",
-                    Data = sensorDtos
+                    Message = $"{sensorsList.Count} sensor(es) encontrado(s)",
+                    Data = sensorsList
                 };
             }
             catch (Exception ex)
@@ -86,19 +93,19 @@ namespace SmartHomes.Services.Soap.Services
         /// <returns></returns>
         public async Task<SoapResponse<List<SensorDto>>> GetSensorsByHomeIdAsync(Guid homeId)
         {
-
             try
             {
-                var sensors = await _sensorRepository.GetByHomeAsync(homeId);
-                var sensorDtos = sensors.Select(MapToDto).ToList();
+                var sensors = await _sensorService.GetSensorsByHomeIdAsync(homeId);
+                var sensorsList = sensors.ToList();
 
                 return new SoapResponse<List<SensorDto>>
                 {
                     Success = true,
-                    Message = $"{sensorDtos.Count} sensor(es) encontrados na casa com ID:{homeId}",
-                    Data = sensorDtos
+                    Message = $"{sensorsList.Count} sensor(es) encontrado(s) na casa",
+                    Data = sensorsList
                 };
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return new SoapResponse<List<SensorDto>>
                 {
@@ -108,9 +115,8 @@ namespace SmartHomes.Services.Soap.Services
             }
         }
 
-
         /// <summary>
-        /// Obtem todos os sensores ativos de uma casa especifica
+        /// Obtem sensores ativos de uma casa
         /// </summary>
         /// <param name="homeId"></param>
         /// <returns></returns>
@@ -118,16 +124,17 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var sensors = await _sensorRepository.GetActiveByHomeIdAsync(homeId);
-                var sensorDtos = sensors.Select(MapToDto).ToList();
+                var sensors = await _sensorService.GetActiveSensorsByHomeIdAsync(homeId);
+                var sensorsList = sensors.ToList();
 
                 return new SoapResponse<List<SensorDto>>
                 {
                     Success = true,
-                    Message = $"{sensorDtos.Count} sensor(es) ativos encontrados na casa com ID:{homeId}",
-                    Data = sensorDtos
+                    Message = $"{sensorsList.Count} sensor(es) ativo(s) encontrado(s)",
+                    Data = sensorsList
                 };
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return new SoapResponse<List<SensorDto>>
                 {
@@ -146,44 +153,16 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-
-                var homeExists = await _homeRepository.GetByIdAsync(request.HomeId);
-                if (homeExists == null)
-                {
-                    return new SoapResponse<SensorDto>
-                    {
-                        Success = false,
-                        Message = $"Casa com ID {request.HomeId} não encontrada"
-                    };
-                }
-                if (string.IsNullOrWhiteSpace(request.Name))
-                {
-                    return new SoapResponse<SensorDto>
-                    {
-                        Success = false,
-                        Message = "Nome do sensor e obrigatório"
-                    };
-                }
-
-                var sensor = new Sensor
-                {
-                    HomeId = request.HomeId,
-                    Type = request.Type,
-                    Unit = request.Unit,
-                    Name = request.Name,
-                    IsActive = true
-                };
-
-                var createdSensor = await _sensorRepository.CreateAsync(sensor);
+                var createdSensor = await _sensorService.CreateSensorAsync(request);
 
                 return new SoapResponse<SensorDto>
                 {
                     Success = true,
                     Message = "Sensor criado com sucesso",
-                    Data = MapToDto(createdSensor)
+                    Data = createdSensor
                 };
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return new SoapResponse<SensorDto>
                 {
@@ -203,36 +182,12 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var existingSensor = await _sensorRepository.GetByIdAsync(id);
-
-                if (existingSensor == null)
-                {
-                    return new SoapResponse<bool>
-                    {
-                        Success = false,
-                        Message = $"Sensor com ID {id} não encontrado"
-                    };
-                }
-
-                // Atualizar campos fornecidos
-                if (!string.IsNullOrWhiteSpace(request.Name))
-                    existingSensor.Name = request.Name.Trim();
-
-                if (request.Type.HasValue)
-                    existingSensor.Type = request.Type.Value;
-
-                if (request.Unit.HasValue)
-                    existingSensor.Unit = request.Unit.Value;
-
-                if (request.IsActive.HasValue)
-                    existingSensor.IsActive = request.IsActive.Value;
-
-                var result = await _sensorRepository.UpdateAsync(id, existingSensor);
+                var result = await _sensorService.UpdateSensorAsync(id, request);
 
                 return new SoapResponse<bool>
                 {
                     Success = result,
-                    Message = result ? "Sensor atualizado com sucesso" : "Falha ao atualizar sensor",
+                    Message = result ? "Sensor atualizado com sucesso" : "Sensor não encontrado",
                     Data = result
                 };
             }
@@ -255,7 +210,7 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var result = await _sensorRepository.DeleteAsync(id);
+                var result = await _sensorService.DeleteSensorAsync(id);
 
                 return new SoapResponse<bool>
                 {
@@ -273,28 +228,5 @@ namespace SmartHomes.Services.Soap.Services
                 };
             }
         }
-
-
-
-        /// <summary>
-        /// Mapeia a entity Sensor para SensorDto
-        /// </summary>
-        /// <param name="sensor"></param>
-        /// <returns></returns>
-        private static SensorDto MapToDto(Sensor sensor)
-        {
-            return new SensorDto
-            {
-                Id = sensor.Id,
-                HomeId = sensor.HomeId,
-                Type = sensor.Type,
-                Unit = sensor.Unit,
-                Name = sensor.Name,
-                IsActive = sensor.IsActive,
-                CreatedAt = sensor.CreatedAt,
-                LastReadingAt = sensor.LastReadingAt
-            };
-        }
     }
-
 }

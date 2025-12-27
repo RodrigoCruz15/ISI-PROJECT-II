@@ -44,5 +44,12 @@ namespace SmartHomes.Domain.Interfaces
         /// <returns>True se removida com sucesso, False caso contrário</returns>
         Task<bool> DeleteHomeAsync(Guid id);
 
+        /// <summary>
+        /// Obtem dados da casa enriquecidos com informacao meteorologica
+        /// </summary>
+        /// <param name="id">ID da casa</param>
+        /// <returns>Casa com dados meteorologicos</returns>
+        Task<HomeWithWeatherDto?> GetHomeWithWeatherAsync(Guid id);
+
     }
 }

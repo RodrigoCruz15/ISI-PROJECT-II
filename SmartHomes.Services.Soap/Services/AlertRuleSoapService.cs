@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SmartHomes.Domain.DTO;
-using SmartHomes.Domain.Entities;
-using SmartHomes.Domain.Enums;
 using SmartHomes.Domain.Interfaces;
 using SmartHomes.Services.Soap.Models;
 
@@ -12,17 +10,15 @@ namespace SmartHomes.Services.Soap.Services
 {
     /// <summary>
     /// Implementacao do servico SOAP para gestao de regras de alerta
-    /// Atua como camada de integracao entre a API REST e a Infrastructure
+    /// Atua como camada de integracao entre a API REST e a Application
     /// </summary>
     public class AlertRuleSoapService : IAlertRuleSoapService
     {
-        private readonly IAlertRuleRepository _alertRuleRepository;
-        private readonly ISensorRepository _sensorRepository;
+        private readonly IAlertRuleService _alertRuleService;
 
-        public AlertRuleSoapService(IAlertRuleRepository alertRuleRepository, ISensorRepository sensorRepository)
+        public AlertRuleSoapService(IAlertRuleService alertRuleService)
         {
-            _alertRuleRepository = alertRuleRepository;
-            _sensorRepository = sensorRepository;
+            _alertRuleService = alertRuleService;
         }
 
         /// <summary>
@@ -34,14 +30,14 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var rule = await _alertRuleRepository.GetByIdAsync(id);
+                var alertRule = await _alertRuleService.GetAlertRuleByIdAsync(id);
 
-                if (rule == null)
+                if (alertRule == null)
                 {
                     return new SoapResponse<AlertRuleDto>
                     {
                         Success = false,
-                        Message = $"Regra com ID {id} nao encontrada"
+                        Message = $"Regra com ID {id} não encontrada"
                     };
                 }
 
@@ -49,7 +45,7 @@ namespace SmartHomes.Services.Soap.Services
                 {
                     Success = true,
                     Message = "Regra encontrada com sucesso",
-                    Data = MapToDto(rule)
+                    Data = alertRule
                 };
             }
             catch (Exception ex)
@@ -70,14 +66,14 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var rules = await _alertRuleRepository.GetAllAsync();
-                var ruleDtos = rules.Select(MapToDto).ToList();
+                var alertRules = await _alertRuleService.GetAllAlertRulesAsync();
+                var rulesList = alertRules.ToList();
 
                 return new SoapResponse<List<AlertRuleDto>>
                 {
                     Success = true,
-                    Message = $"{ruleDtos.Count} regra(s) encontrada(s)",
-                    Data = ruleDtos
+                    Message = $"{rulesList.Count} regra(s) encontrada(s)",
+                    Data = rulesList
                 };
             }
             catch (Exception ex)
@@ -91,7 +87,7 @@ namespace SmartHomes.Services.Soap.Services
         }
 
         /// <summary>
-        /// Obtem regras de um sensor especifico
+        /// Obtem regras de um sensor
         /// </summary>
         /// <param name="sensorId"></param>
         /// <returns></returns>
@@ -99,14 +95,14 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var rules = await _alertRuleRepository.GetBySensorIdAsync(sensorId);
-                var ruleDtos = rules.Select(MapToDto).ToList();
+                var alertRules = await _alertRuleService.GetAlertRulesBySensorIdAsync(sensorId);
+                var rulesList = alertRules.ToList();
 
                 return new SoapResponse<List<AlertRuleDto>>
                 {
                     Success = true,
-                    Message = $"{ruleDtos.Count} regra(s) encontrada(s) para o sensor",
-                    Data = ruleDtos
+                    Message = $"{rulesList.Count} regra(s) encontrada(s) para o sensor",
+                    Data = rulesList
                 };
             }
             catch (Exception ex)
@@ -128,55 +124,13 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                // Verificar se o sensor existe
-                var sensor = await _sensorRepository.GetByIdAsync(request.SensorId);
-                if (sensor == null)
-                {
-                    return new SoapResponse<AlertRuleDto>
-                    {
-                        Success = false,
-                        Message = $"Sensor com ID {request.SensorId} nao encontrado"
-                    };
-                }
-
-                // Validacoes basicas
-                if (string.IsNullOrWhiteSpace(request.Name))
-                {
-                    return new SoapResponse<AlertRuleDto>
-                    {
-                        Success = false,
-                        Message = "Nome da regra e obrigatorio"
-                    };
-                }
-
-                if (string.IsNullOrWhiteSpace(request.Message))
-                {
-                    return new SoapResponse<AlertRuleDto>
-                    {
-                        Success = false,
-                        Message = "Mensagem do alerta e obrigatoria"
-                    };
-                }
-
-                // Criar regra
-                var alertRule = new AlertRule
-                {
-                    SensorId = request.SensorId,
-                    Name = request.Name.Trim(),
-                    Condition = request.Condition,
-                    Threshold = request.Threshold,
-                    Severity = request.Severity,
-                    Message = request.Message.Trim(),
-                    IsActive = true
-                };
-
-                var createdRule = await _alertRuleRepository.CreateAsync(alertRule);
+                var createdRule = await _alertRuleService.CreateAlertRuleAsync(request);
 
                 return new SoapResponse<AlertRuleDto>
                 {
                     Success = true,
                     Message = "Regra criada com sucesso",
-                    Data = MapToDto(createdRule)
+                    Data = createdRule
                 };
             }
             catch (Exception ex)
@@ -199,42 +153,12 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var existingRule = await _alertRuleRepository.GetByIdAsync(id);
-
-                if (existingRule == null)
-                {
-                    return new SoapResponse<bool>
-                    {
-                        Success = false,
-                        Message = $"Regra com ID {id} nao encontrada"
-                    };
-                }
-
-                // Atualizar campos fornecidos
-                if (!string.IsNullOrWhiteSpace(request.Name))
-                    existingRule.Name = request.Name.Trim();
-
-                if (request.Condition.HasValue)
-                    existingRule.Condition = request.Condition.Value;
-
-                if (request.Threshold.HasValue)
-                    existingRule.Threshold = request.Threshold.Value;
-
-                if (request.Severity.HasValue)
-                    existingRule.Severity = request.Severity.Value;
-
-                if (!string.IsNullOrWhiteSpace(request.Message))
-                    existingRule.Message = request.Message.Trim();
-
-                if (request.IsActive.HasValue)
-                    existingRule.IsActive = request.IsActive.Value;
-
-                var result = await _alertRuleRepository.UpdateAsync(id, existingRule);
+                var result = await _alertRuleService.UpdateAlertRuleAsync(id, request);
 
                 return new SoapResponse<bool>
                 {
                     Success = result,
-                    Message = result ? "Regra atualizada com sucesso" : "Falha ao atualizar regra",
+                    Message = result ? "Regra atualizada com sucesso" : "Regra não encontrada",
                     Data = result
                 };
             }
@@ -257,12 +181,12 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var result = await _alertRuleRepository.DeleteAsync(id);
+                var result = await _alertRuleService.DeleteAlertRuleAsync(id);
 
                 return new SoapResponse<bool>
                 {
                     Success = result,
-                    Message = result ? "Regra removida com sucesso" : "Regra nao encontrada",
+                    Message = result ? "Regra removida com sucesso" : "Regra não encontrada",
                     Data = result
                 };
             }
@@ -274,27 +198,6 @@ namespace SmartHomes.Services.Soap.Services
                     Message = $"Erro ao remover regra: {ex.Message}"
                 };
             }
-        }
-
-        /// <summary>
-        /// Mapeia AlertRule para AlertRuleDto
-        /// </summary>
-        /// <param name="alertRule"></param>
-        /// <returns></returns>
-        private static AlertRuleDto MapToDto(AlertRule alertRule)
-        {
-            return new AlertRuleDto
-            {
-                Id = alertRule.Id,
-                SensorId = alertRule.SensorId,
-                Name = alertRule.Name,
-                Condition = alertRule.Condition,
-                Threshold = alertRule.Threshold,
-                Severity = alertRule.Severity,
-                Message = alertRule.Message,
-                IsActive = alertRule.IsActive,
-                CreatedAt = alertRule.CreatedAt
-            };
         }
     }
 }

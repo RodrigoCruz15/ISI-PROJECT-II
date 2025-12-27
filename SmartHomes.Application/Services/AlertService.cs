@@ -115,7 +115,7 @@ namespace SmartHomes.Application.Services
             foreach (var rule in activeRules)
             {
                 // Verificar se a leitura viola a condicao da regra
-                bool ruleViolated = CheckCondition(reading.Value, rule.Condition, rule.Threshold);
+                bool ruleViolated = EvaluateRule(reading.Value, rule.Condition, rule.Threshold);
 
                 if (ruleViolated)
                 {
@@ -147,7 +147,7 @@ namespace SmartHomes.Application.Services
         /// <param name="condition"></param>
         /// <param name="threshold"></param>
         /// <returns></returns>
-        private static bool CheckCondition(decimal value, AlertConditionEnum condition, decimal threshold)
+        private static bool EvaluateRule(decimal value, AlertConditionEnum condition, decimal threshold)
         {
             return condition switch
             {

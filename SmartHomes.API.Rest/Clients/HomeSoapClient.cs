@@ -56,5 +56,10 @@ namespace SmartHomes.API.Rest.Clients
         {
             return await _soapClient.DeleteHomeAsync(id);
         }
+
+        public async Task<SoapResponse<HomeWithWeatherDto>> GetHomeWithWeatherAsync(Guid id)
+        {
+            return await _soapClient.GetHomeWithWeatherAsync(id);
+        }
     }
 }

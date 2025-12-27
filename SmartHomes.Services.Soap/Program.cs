@@ -1,8 +1,9 @@
-using SoapCore;
-using SmartHomes.Services.Soap.Services;
+using SmartHomes.Application.Services;
 using SmartHomes.Domain.Interfaces;
 using SmartHomes.Infrastructure.Data;
 using SmartHomes.Infrastructure.Repositories;
+using SmartHomes.Services.Soap.Services;
+using SoapCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,14 @@ builder.Services.AddScoped<ISensorRepository, SensorRepository>();
 builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 builder.Services.AddScoped<IAlertRuleRepository, AlertRuleRepository>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
+
+// Registar Application Services (logica de negocio)
+builder.Services.AddScoped<IHomeService, HomeService>();
+builder.Services.AddScoped<ISensorService, SensorService>();
+builder.Services.AddScoped<ISensorReadingService, SensorReadingService>();
+builder.Services.AddScoped<IAlertRuleService, AlertRuleService>();
+builder.Services.AddScoped<IAlertService, AlertService>();
+builder.Services.AddHttpClient<IWeatherService, WeatherService>();
 
 // Registar Serviços SOAP
 builder.Services.AddScoped<IHomeSoapService, HomeSoapService>();

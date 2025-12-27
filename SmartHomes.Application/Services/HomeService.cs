@@ -16,10 +16,16 @@ namespace SmartHomes.Application.Services
     public class HomeService : IHomeService
     {
         private readonly IHomeRepository _homeRepository;
+        private readonly IWeatherService _weatherService;
+        private readonly ISensorReadingRepository _readingRepository;
+        private readonly ISensorRepository _sensorRepository;
 
-        public HomeService(IHomeRepository homeRepository)
+        public HomeService(IHomeRepository homeRepository, IWeatherService weatherService, ISensorReadingRepository readingRepository, ISensorRepository sensorRepository)
         {
             _homeRepository = homeRepository;
+            _weatherService = weatherService;
+            _readingRepository = readingRepository;
+            _sensorRepository = sensorRepository;
         }
 
         /// <summary>
@@ -114,6 +120,106 @@ namespace SmartHomes.Application.Services
                 return false;
 
             return await _homeRepository.DeleteAsync(id);
+        }
+
+
+        // Adicione este metodo
+        /// <summary>
+        /// Obtem dados da casa com informacao meteorologica
+        /// </summary>
+        /// <param name="id">ID da casa</param>
+        /// <returns>Casa com clima exterior e temperatura interior</returns>
+        public async Task<HomeWithWeatherDto?> GetHomeWithWeatherAsync(Guid id)
+        {
+            // 1. Obter dados da casa
+            var home = await _homeRepository.GetByIdAsync(id);
+            if (home == null)
+                return null;
+
+            // 2. Obter clima exterior via API
+            var weather = await _weatherService.GetWeatherByCoordinatesAsync(home.Latitude, home.Longitude);
+
+            // 3. Calcular temperatura interior media (dos sensores de temperatura)
+            decimal? indoorTemp = await GetAverageIndoorTemperatureAsync(id);
+
+            // 4. Criar resposta combinada
+            var result = new HomeWithWeatherDto
+            {
+                HomeId = home.Id,
+                HomeName = home.Name,
+                Address = home.Address,
+                Latitude = home.Latitude,
+                Longitude = home.Longitude,
+                IndoorTemperature = indoorTemp,
+                Weather = weather
+            };
+
+            // 5. Calcular diferenca e dar recomendacao
+            if (indoorTemp.HasValue && weather != null)
+            {
+                result.TemperatureDifference = indoorTemp.Value - weather.Temperature;
+                result.Recommendation = GenerateRecommendation(indoorTemp.Value, weather.Temperature);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Calcula temperatura interior media dos sensores de temperatura
+        /// </summary>
+        /// <param name="homeId">ID da casa</param>
+        /// <returns>Temperatura media ou null</returns>
+        private async Task<decimal?> GetAverageIndoorTemperatureAsync(Guid homeId)
+        {
+            try
+            {
+                // Obter sensores de temperatura da casa
+                var sensors = await _sensorRepository.GetActiveByHomeIdAsync(homeId);
+                var tempSensors = sensors.Where(s => s.Type == SensorTypeEnum.Temperature).ToList();
+
+                if (!tempSensors.Any())
+                    return null;
+
+                // Obter ultima leitura de cada sensor
+                var readings = new List<decimal>();
+                foreach (var sensor in tempSensors)
+                {
+                    var lastReading = await _readingRepository.GetLatestBySensorIdAsync(sensor.Id);
+                    if (lastReading != null)
+                        readings.Add(lastReading.Value);
+                }
+
+                return readings.Any() ? readings.Average() : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Gera recomendacao baseada na diferenca de temperatura
+        /// </summary>
+        /// <param name="indoor">Temperatura interior</param>
+        /// <param name="outdoor">Temperatura exterior</param>
+        /// <returns>Recomendacao</returns>
+        private static string GenerateRecommendation(decimal indoor, decimal outdoor)
+        {
+            var diff = indoor - outdoor;
+
+            if (Math.Abs(diff) < 2)
+                return "Temperatura equilibrada";
+
+            if (diff > 5)
+                return "Interior muito mais quente. Considere abrir janelas ou ligar ar condicionado";
+
+            if (diff < -5)
+                return "Interior muito mais frio. Considere ligar aquecimento";
+
+            if (diff > 0)
+                return "Interior ligeiramente mais quente que o exterior";
+
+            return "Interior ligeiramente mais frio que o exterior";
         }
 
         /// <summary>

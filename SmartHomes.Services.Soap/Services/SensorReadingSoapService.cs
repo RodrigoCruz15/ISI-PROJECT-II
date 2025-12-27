@@ -3,29 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SmartHomes.Domain.DTO;
-using SmartHomes.Domain.Entities;
 using SmartHomes.Domain.Interfaces;
 using SmartHomes.Services.Soap.Models;
 
 namespace SmartHomes.Services.Soap.Services
 {
     /// <summary>
-    /// Implementação do serviço SOAP para gestão de leituras de sensores
-    /// Atua como camada de integração para registar e consultar leituras
+    /// Implementacao do servico SOAP para gestao de leituras de sensores
+    /// Atua como camada de integracao entre a API REST e a Application
     /// </summary>
     public class SensorReadingSoapService : ISensorReadingSoapService
     {
-        private readonly ISensorReadingRepository _readingRepository;
-        private readonly ISensorRepository _sensorRepository;
+        private readonly ISensorReadingService _readingService;
 
-        public SensorReadingSoapService(ISensorReadingRepository readingRepository, ISensorRepository sensorRepository)
+        public SensorReadingSoapService(ISensorReadingService readingService)
         {
-            _readingRepository = readingRepository;
-            _sensorRepository = sensorRepository;
+            _readingService = readingService;
         }
 
         /// <summary>
-        /// Obtém uma leitura pelo ID
+        /// Obtem uma leitura pelo ID
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -33,7 +30,7 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var reading = await _readingRepository.GetByIdAsync(id);
+                var reading = await _readingService.GetReadingByIdAsync(id);
 
                 if (reading == null)
                 {
@@ -48,7 +45,7 @@ namespace SmartHomes.Services.Soap.Services
                 {
                     Success = true,
                     Message = "Leitura encontrada com sucesso",
-                    Data = MapToDto(reading)
+                    Data = reading
                 };
             }
             catch (Exception ex)
@@ -62,7 +59,7 @@ namespace SmartHomes.Services.Soap.Services
         }
 
         /// <summary>
-        /// Obtém leituras de um sensor
+        /// Obtem leituras de um sensor
         /// </summary>
         /// <param name="sensorId"></param>
         /// <param name="limit"></param>
@@ -71,14 +68,14 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var readings = await _readingRepository.GetBySensorIdAsync(sensorId, limit);
-                var readingDtos = readings.Select(MapToDto).ToList();
+                var readings = await _readingService.GetReadingsBySensorIdAsync(sensorId, limit);
+                var readingsList = readings.ToList();
 
                 return new SoapResponse<List<SensorReadingDto>>
                 {
                     Success = true,
-                    Message = $"{readingDtos.Count} leitura(s) encontrada(s)",
-                    Data = readingDtos
+                    Message = $"{readingsList.Count} leitura(s) encontrada(s)",
+                    Data = readingsList
                 };
             }
             catch (Exception ex)
@@ -92,7 +89,7 @@ namespace SmartHomes.Services.Soap.Services
         }
 
         /// <summary>
-        /// Obtém a última leitura de um sensor
+        /// Obtem a ultima leitura de um sensor
         /// </summary>
         /// <param name="sensorId"></param>
         /// <returns></returns>
@@ -100,7 +97,7 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var reading = await _readingRepository.GetLatestBySensorIdAsync(sensorId);
+                var reading = await _readingService.GetLatestReadingAsync(sensorId);
 
                 if (reading == null)
                 {
@@ -115,7 +112,7 @@ namespace SmartHomes.Services.Soap.Services
                 {
                     Success = true,
                     Message = "Última leitura obtida com sucesso",
-                    Data = MapToDto(reading)
+                    Data = reading
                 };
             }
             catch (Exception ex)
@@ -130,7 +127,7 @@ namespace SmartHomes.Services.Soap.Services
 
         /// <summary>
         /// Cria uma nova leitura
-        /// Valida se o sensor existe e está ativo antes de criar
+        /// Verifica alertas automaticamente
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -138,44 +135,13 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                // Verificar se o sensor existe
-                var sensor = await _sensorRepository.GetByIdAsync(request.SensorId);
-                if (sensor == null)
-                {
-                    return new SoapResponse<SensorReadingDto>
-                    {
-                        Success = false,
-                        Message = $"Sensor com ID {request.SensorId} não encontrado"
-                    };
-                }
-
-                // Verificar se o sensor está ativo
-                if (!sensor.IsActive)
-                {
-                    return new SoapResponse<SensorReadingDto>
-                    {
-                        Success = false,
-                        Message = $"Sensor '{sensor.Name}' está inativo"
-                    };
-                }
-
-                // Criar leitura
-                var reading = new SensorReading
-                {
-                    SensorId = request.SensorId,
-                    Value = request.Value
-                };
-
-                var createdReading = await _readingRepository.CreateAsync(reading);
-
-                // Atualizar timestamp da última leitura no sensor
-                await _sensorRepository.UpdateLastReadingAsync(request.SensorId, createdReading.Timestamp);
+                var createdReading = await _readingService.CreateReadingAsync(request);
 
                 return new SoapResponse<SensorReadingDto>
                 {
                     Success = true,
                     Message = "Leitura criada com sucesso",
-                    Data = MapToDto(createdReading)
+                    Data = createdReading
                 };
             }
             catch (Exception ex)
@@ -186,22 +152,6 @@ namespace SmartHomes.Services.Soap.Services
                     Message = $"Erro ao criar leitura: {ex.Message}"
                 };
             }
-        }
-
-        /// <summary>
-        /// Mapeia SensorReading para SensorReadingDto
-        /// </summary>
-        /// <param name="reading"></param>
-        /// <returns></returns>
-        private static SensorReadingDto MapToDto(SensorReading reading)
-        {
-            return new SensorReadingDto
-            {
-                Id = reading.Id,
-                SensorId = reading.SensorId,
-                Value = reading.Value,
-                Timestamp = reading.Timestamp
-            };
         }
     }
 }

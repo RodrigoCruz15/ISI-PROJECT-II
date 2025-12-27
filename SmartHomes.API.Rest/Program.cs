@@ -1,4 +1,6 @@
 using SmartHomes.API.Rest.Clients;
+using SmartHomes.Application.Services;
+using SmartHomes.Domain.Interfaces;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,11 +19,6 @@ builder.Services.AddSwaggerGen(c =>
     c.UseInlineDefinitionsForEnums();
 });
 
-// Adicionar serviços
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 // Obter URL base do serviço SOAP do appsettings.json
 var soapServiceUrl = builder.Configuration["SoapService:Url"]
     ?? "http://localhost:5001";
@@ -32,6 +29,15 @@ builder.Services.AddSingleton(new SensorSoapClient($"{soapServiceUrl}/SensorSoap
 builder.Services.AddSingleton(new SensorReadingSoapClient($"{soapServiceUrl}/SensorReadingSoapService.asmx"));
 builder.Services.AddSingleton(new AlertRuleSoapClient($"{soapServiceUrl}/AlertRuleSoapService.asmx"));
 builder.Services.AddSingleton(new AlertSoapClient($"{soapServiceUrl}/AlertSoapService.asmx"));
+
+
+// Configurar HttpClient para WeatherService
+//builder.Services.AddHttpClient<IWeatherService, WeatherService>((serviceProvider, client) =>
+//{
+//    var config = serviceProvider.GetRequiredService<IConfiguration>();
+//    var apiKey = config["OpenWeather:ApiKey"] ?? "d80ffaee2cee46bf65d80759cbb39afe";
+//    client.BaseAddress = new Uri("https://api.openweathermap.org/data/2.5/");
+//});
 
 var app = builder.Build();
 

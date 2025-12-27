@@ -9,16 +9,16 @@ using SmartHomes.Services.Soap.Models;
 namespace SmartHomes.Services.Soap.Services
 {
     /// <summary>
-    /// Implementacao do servico SOAP para gestao de alertas disparados
-    /// Atua como camada de integracao para consultar alertas
+    /// Implementacao do servico SOAP para gestao de alertas
+    /// Atua como camada de integracao entre a API REST e a Application
     /// </summary>
     public class AlertSoapService : IAlertSoapService
     {
-        private readonly IAlertRepository _alertRepository;
+        private readonly IAlertService _alertService;
 
-        public AlertSoapService(IAlertRepository alertRepository)
+        public AlertSoapService(IAlertService alertService)
         {
-            _alertRepository = alertRepository;
+            _alertService = alertService;
         }
 
         /// <summary>
@@ -30,14 +30,14 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var alert = await _alertRepository.GetByIdAsync(id);
+                var alert = await _alertService.GetAlertByIdAsync(id);
 
                 if (alert == null)
                 {
                     return new SoapResponse<AlertDto>
                     {
                         Success = false,
-                        Message = $"Alerta com ID {id} nao encontrado"
+                        Message = $"Alerta com ID {id} não encontrado"
                     };
                 }
 
@@ -45,7 +45,7 @@ namespace SmartHomes.Services.Soap.Services
                 {
                     Success = true,
                     Message = "Alerta encontrado com sucesso",
-                    Data = MapToDto(alert)
+                    Data = alert
                 };
             }
             catch (Exception ex)
@@ -68,14 +68,14 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var alerts = await _alertRepository.GetBySensorIdAsync(sensorId, limit);
-                var alertDtos = alerts.Select(MapToDto).ToList();
+                var alerts = await _alertService.GetAlertsBySensorIdAsync(sensorId, limit);
+                var alertsList = alerts.ToList();
 
                 return new SoapResponse<List<AlertDto>>
                 {
                     Success = true,
-                    Message = $"{alertDtos.Count} alerta(s) encontrado(s)",
-                    Data = alertDtos
+                    Message = $"{alertsList.Count} alerta(s) encontrado(s)",
+                    Data = alertsList
                 };
             }
             catch (Exception ex)
@@ -98,14 +98,14 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var alerts = await _alertRepository.GetByHomeIdAsync(homeId, limit);
-                var alertDtos = alerts.Select(MapToDto).ToList();
+                var alerts = await _alertService.GetAlertsByHomeIdAsync(homeId, limit);
+                var alertsList = alerts.ToList();
 
                 return new SoapResponse<List<AlertDto>>
                 {
                     Success = true,
-                    Message = $"{alertDtos.Count} alerta(s) encontrado(s) na casa",
-                    Data = alertDtos
+                    Message = $"{alertsList.Count} alerta(s) encontrado(s) na casa",
+                    Data = alertsList
                 };
             }
             catch (Exception ex)
@@ -127,14 +127,14 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var alerts = await _alertRepository.GetUnacknowledgedAsync(homeId);
-                var alertDtos = alerts.Select(MapToDto).ToList();
+                var alerts = await _alertService.GetUnacknowledgedAlertsAsync(homeId);
+                var alertsList = alerts.ToList();
 
                 return new SoapResponse<List<AlertDto>>
                 {
                     Success = true,
-                    Message = $"{alertDtos.Count} alerta(s) nao reconhecido(s)",
-                    Data = alertDtos
+                    Message = $"{alertsList.Count} alerta(s) pendente(s)",
+                    Data = alertsList
                 };
             }
             catch (Exception ex)
@@ -142,7 +142,7 @@ namespace SmartHomes.Services.Soap.Services
                 return new SoapResponse<List<AlertDto>>
                 {
                     Success = false,
-                    Message = $"Erro ao obter alertas: {ex.Message}"
+                    Message = $"Erro ao obter alertas pendentes: {ex.Message}"
                 };
             }
         }
@@ -156,12 +156,12 @@ namespace SmartHomes.Services.Soap.Services
         {
             try
             {
-                var result = await _alertRepository.AcknowledgeAsync(id);
+                var result = await _alertService.AcknowledgeAlertAsync(id);
 
                 return new SoapResponse<bool>
                 {
                     Success = result,
-                    Message = result ? "Alerta reconhecido com sucesso" : "Alerta nao encontrado",
+                    Message = result ? "Alerta marcado como lido" : "Alerta não encontrado",
                     Data = result
                 };
             }
@@ -170,32 +170,9 @@ namespace SmartHomes.Services.Soap.Services
                 return new SoapResponse<bool>
                 {
                     Success = false,
-                    Message = $"Erro ao reconhecer alerta: {ex.Message}"
+                    Message = $"Erro ao marcar alerta: {ex.Message}"
                 };
             }
-        }
-
-        /// <summary>
-        /// Mapeia Alert para AlertDto
-        /// </summary>
-        /// <param name="alert"></param>
-        /// <returns></returns>
-        private static AlertDto MapToDto(Domain.Entities.Alert alert)
-        {
-            return new AlertDto
-            {
-                Id = alert.Id,
-                AlertRuleId = alert.AlertRuleId,
-                SensorReadingId = alert.SensorReadingId,
-                SensorId = alert.SensorId,
-                Value = alert.Value,
-                Threshold = alert.Threshold,
-                Severity = alert.Severity,
-                Message = alert.Message,
-                TriggeredAt = alert.TriggeredAt,
-                IsAcknowledged = alert.IsAcknowledged,
-                AcknowledgedAt = alert.AcknowledgedAt
-            };
         }
     }
 }

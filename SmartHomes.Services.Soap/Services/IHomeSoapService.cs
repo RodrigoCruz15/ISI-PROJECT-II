@@ -41,4 +41,11 @@ public interface IHomeSoapService
     /// </summary>
     [OperationContract]
     Task<SoapResponse<bool>> DeleteHomeAsync(Guid id);
+
+    /// <summary>
+    /// Obtem casa com dados meteorologicos via SOAP
+    /// </summary>
+    [OperationContract]
+    Task<SoapResponse<HomeWithWeatherDto>> GetHomeWithWeatherAsync(Guid id);
+
 }
