@@ -29,6 +29,7 @@ builder.Services.AddSingleton(new SensorSoapClient($"{soapServiceUrl}/SensorSoap
 builder.Services.AddSingleton(new SensorReadingSoapClient($"{soapServiceUrl}/SensorReadingSoapService.asmx"));
 builder.Services.AddSingleton(new AlertRuleSoapClient($"{soapServiceUrl}/AlertRuleSoapService.asmx"));
 builder.Services.AddSingleton(new AlertSoapClient($"{soapServiceUrl}/AlertSoapService.asmx"));
+builder.Services.AddSingleton(new AuthSoapClient($"{soapServiceUrl}/AuthSoapService.asmx"));
 
 
 // Configurar HttpClient para WeatherService
