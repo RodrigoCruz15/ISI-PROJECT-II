@@ -76,7 +76,7 @@ namespace SmartHomes.Infrastructure.Repositories
         /// <returns></returns>
         public async Task<IEnumerable<Sensor>> GetByHomeAsync(Guid homeId)
         {
-            const string query = @"Select id, home_id, type, unit, name, is_active, created_at, last_reading_at from sensors Where home_id = @Home_Id";
+            const string query = @"Select id, home_id, type, unit, name, is_active, created_at, last_reading_at from sensors Where home_id = @HomeId";
 
             var sensors = new List<Sensor>();
 

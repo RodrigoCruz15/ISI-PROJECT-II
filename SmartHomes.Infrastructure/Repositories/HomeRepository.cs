@@ -29,7 +29,7 @@ namespace SmartHomes.Infrastructure.Repositories
         public async Task<Home?> GetByIdAsync(Guid id)
         {
             const string query = @"
-                SELECT id, owner_id, name, address, latitude, longitude, area, status, created_at 
+                SELECT id, user_id, name, address, latitude, longitude, area, status, created_at 
                 FROM homes 
                 WHERE id = @Id";
 
@@ -47,13 +47,45 @@ namespace SmartHomes.Infrastructure.Repositories
             return MapToHome(reader);
         }
 
+
+        /// <summary>
+        /// Obtem todas as casas de um utilizador especifico
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Home>> GetByUserIdAsync(Guid userId)
+        {
+            const string query = @"
+        SELECT id, user_id, name, address, latitude, longitude, area, status, created_at
+        FROM homes
+        WHERE user_id = @UserId
+        ORDER BY created_at DESC";
+
+            var homes = new List<Home>();
+
+            await using var connection = _dbConnection.CreateConnection();
+            await connection.OpenAsync();
+
+            await using var command = new NpgsqlCommand(query, connection);
+            command.Parameters.AddWithValue("@UserId", userId);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                homes.Add(MapToHome(reader));
+            }
+
+            return homes;
+        }
+
         /// <summary>
         /// Obtém todas as casas
         /// </summary>
         public async Task<IEnumerable<Home>> GetAllAsync()
         {
             const string query = @"
-                SELECT id, owner_id, name, address, latitude, longitude, area, status, created_at
+                SELECT id, user_id, name, address, latitude, longitude, area, status, created_at
                 FROM homes
                 ORDER BY created_at DESC";
 
@@ -79,9 +111,9 @@ namespace SmartHomes.Infrastructure.Repositories
         public async Task<Home> CreateAsync(Home home)
         {
             const string query = @"
-                INSERT INTO homes (id, owner_id, name, address, latitude, longitude, area, status, created_at)
-                VALUES (@Id, @OwnerId, @Name, @Address, @Latitude, @Longitude, @Area, @Status, @CreatedAt)
-                RETURNING id, owner_id, name, address, latitude, longitude, area, status, created_at";
+                INSERT INTO homes (id, user_id, name, address, latitude, longitude, area, status, created_at)
+                VALUES (@Id, @UserId, @Name, @Address, @Latitude, @Longitude, @Area, @Status, @CreatedAt)
+                RETURNING id, user_id, name, address, latitude, longitude, area, status, created_at";
 
             home.Id = Guid.NewGuid();
             home.CreatedAt = DateTime.UtcNow;
@@ -91,7 +123,7 @@ namespace SmartHomes.Infrastructure.Repositories
 
             await using var command = new NpgsqlCommand(query, connection);
             command.Parameters.AddWithValue("@Id", home.Id);
-            command.Parameters.AddWithValue("@OwnerId", home.OwnerId);
+            command.Parameters.AddWithValue("@UserId", home.UserId);
             command.Parameters.AddWithValue("@Name", home.Name);
             command.Parameters.AddWithValue("@Address", home.Address);
             command.Parameters.AddWithValue("@Latitude", home.Latitude);
@@ -140,15 +172,16 @@ namespace SmartHomes.Infrastructure.Repositories
         /// <summary>
         /// Remove uma casa
         /// </summary>
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id, Guid userId)
         {
-            const string query = "DELETE FROM homes WHERE id = @Id";
+            const string query = "DELETE FROM homes WHERE id = @Id AND user_id = @UserId";
 
             await using var connection = _dbConnection.CreateConnection();
             await connection.OpenAsync();
 
             await using var command = new NpgsqlCommand(query, connection);
             command.Parameters.AddWithValue("@Id", id);
+            command.Parameters.AddWithValue("@UserId", userId);
 
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
@@ -162,7 +195,7 @@ namespace SmartHomes.Infrastructure.Repositories
             return new Home
             {
                 Id = reader.GetGuid(0),
-                OwnerId = reader.GetGuid(1),
+                UserId = reader.GetGuid(1),
                 Name = reader.GetString(2),
                 Address = reader.GetString(3),
                 Latitude = reader.GetDecimal(4),

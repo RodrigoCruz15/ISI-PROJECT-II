@@ -13,6 +13,21 @@ namespace SmartHomes.Domain.Interfaces
         Task<IEnumerable<Home>> GetAllAsync();
         Task<Home> CreateAsync(Home home);
         Task<bool> UpdateAsync(Guid id, Home home);
-        Task<bool> DeleteAsync(Guid id);
+        
+
+        /// <summary>
+        /// Obtem casas de um utilizador especifico
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<IEnumerable<Home>> GetByUserIdAsync(Guid userId);
+
+        /// <summary>
+        /// Remove uma casa (verificando ownership)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<bool> DeleteAsync(Guid id, Guid userId);
     }
 }

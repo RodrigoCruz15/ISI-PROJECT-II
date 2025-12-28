@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using SmartHomes.Domain.DTO;
+﻿using SmartHomes.Domain.DTO;
 using SmartHomes.Domain.Interfaces;
 using SmartHomes.Services.Soap.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace SmartHomes.Services.Soap.Services
 {
@@ -54,6 +55,33 @@ namespace SmartHomes.Services.Soap.Services
                 {
                     Success = false,
                     Message = $"Erro ao obter casa: {ex.Message}"
+                };
+            }
+        }
+
+        
+
+        // Implementação
+        public async Task<SoapResponse<List<HomeDto>>> GetHomesByUserIdAsync(Guid userId)
+        {
+            try
+            {
+                var homes = await _homeService.GetHomesByUserIdAsync(userId);
+                var homesList = homes.ToList();
+
+                return new SoapResponse<List<HomeDto>>
+                {
+                    Success = true,
+                    Message = $"{homesList.Count} casa(s) encontrada(s)",
+                    Data = homesList
+                };
+            }
+            catch (Exception ex)
+            {
+                return new SoapResponse<List<HomeDto>>
+                {
+                    Success = false,
+                    Message = $"Erro ao obter casas: {ex.Message}"
                 };
             }
         }
@@ -145,20 +173,30 @@ namespace SmartHomes.Services.Soap.Services
 
         /// <summary>
         /// Remove uma casa do sistema
+        /// Verifica se pertence ao utilizador
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<SoapResponse<bool>> DeleteHomeAsync(Guid id)
+        public async Task<SoapResponse<bool>> DeleteHomeAsync(Guid id, Guid userId)
         {
             try
             {
-                var result = await _homeService.DeleteHomeAsync(id);
+                var result = await _homeService.DeleteHomeAsync(id, userId);
 
                 return new SoapResponse<bool>
                 {
                     Success = result,
                     Message = result ? "Casa removida com sucesso" : "Casa não encontrada",
                     Data = result
+                };
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return new SoapResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message
                 };
             }
             catch (Exception ex)

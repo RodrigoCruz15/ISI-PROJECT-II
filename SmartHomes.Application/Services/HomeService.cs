@@ -42,6 +42,17 @@ namespace SmartHomes.Application.Services
         }
 
         /// <summary>
+        /// Obtem todas as casas de um utilizador
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<HomeDto>> GetHomesByUserIdAsync(Guid userId)
+        {
+            var homes = await _homeRepository.GetByUserIdAsync(userId);
+            return homes.Select(MapToDto);
+        }
+
+        /// <summary>
         /// Obtém todas as casas
         /// </summary>
         public async Task<IEnumerable<HomeDto>> GetAllHomesAsync()
@@ -61,7 +72,7 @@ namespace SmartHomes.Application.Services
             // Mapear para entidade
             var home = new Home
             {
-                OwnerId = request.OwnerId,
+                UserId = request.UserId,
                 Name = request.Name.Trim(),
                 Address = request.Address.Trim(),
                 Latitude = request.Latitude,
@@ -110,16 +121,22 @@ namespace SmartHomes.Application.Services
         }
 
         /// <summary>
-        /// Remove uma casa do sistema
+        /// Remove uma casa (verificando ownership)
         /// </summary>
-        public async Task<bool> DeleteHomeAsync(Guid id)
+        /// <param name="id"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteHomeAsync(Guid id, Guid userId)
         {
-            // Verificar se existe antes de remover
-            var existingHome = await _homeRepository.GetByIdAsync(id);
-            if (existingHome == null)
+            var home = await _homeRepository.GetByIdAsync(id);
+            if (home == null)
                 return false;
 
-            return await _homeRepository.DeleteAsync(id);
+            // Verificar se pertence ao utilizador
+            if (home.UserId != userId)
+                throw new UnauthorizedAccessException("Não tem permissão para eliminar esta casa");
+
+            return await _homeRepository.DeleteAsync(id, userId);
         }
 
 
@@ -278,7 +295,7 @@ namespace SmartHomes.Application.Services
             return new HomeDto
             {
                 Id = home.Id,
-                OwnerId = home.OwnerId,
+                OwnerId = home.UserId,
                 Name = home.Name,
                 Address = home.Address,
                 Latitude = home.Latitude,

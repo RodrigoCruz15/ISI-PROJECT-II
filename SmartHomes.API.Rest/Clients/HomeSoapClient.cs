@@ -1,10 +1,16 @@
-﻿using SmartHomes.Domain.DTO;
+﻿using System;
+using System.Collections.Generic;
 using System.ServiceModel;
+using System.Threading.Tasks;
+using SmartHomes.Domain.DTO;
 using SmartHomes.Services.Soap.Services;
 using SmartHomes.Services.Soap.Models;
 
 namespace SmartHomes.API.Rest.Clients
 {
+    /// <summary>
+    /// Cliente para comunicacao com o servico SOAP de casas
+    /// </summary>
     public class HomeSoapClient
     {
         private readonly IHomeSoapService _soapClient;
@@ -18,24 +24,49 @@ namespace SmartHomes.API.Rest.Clients
         }
 
         /// <summary>
-        /// Obtém uma casa pelo ID via SOAP
+        /// Obtem uma casa pelo ID via SOAP
         /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<SoapResponse<HomeDto>> GetHomeByIdAsync(Guid id)
         {
             return await _soapClient.GetHomeByIdAsync(id);
         }
 
         /// <summary>
-        /// Obtém todas as casas via SOAP
+        /// Obtem todas as casas via SOAP
         /// </summary>
+        /// <returns></returns>
         public async Task<SoapResponse<List<HomeDto>>> GetAllHomesAsync()
         {
             return await _soapClient.GetAllHomesAsync();
         }
 
         /// <summary>
+        /// Obtem casas de um utilizador via SOAP
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<SoapResponse<List<HomeDto>>> GetHomesByUserIdAsync(Guid userId)
+        {
+            return await _soapClient.GetHomesByUserIdAsync(userId);
+        }
+
+        /// <summary>
+        /// Obtem casa com dados meteorologicos via SOAP
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<SoapResponse<HomeWithWeatherDto>> GetHomeWithWeatherAsync(Guid id)
+        {
+            return await _soapClient.GetHomeWithWeatherAsync(id);
+        }
+
+        /// <summary>
         /// Cria uma nova casa via SOAP
         /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<SoapResponse<HomeDto>> CreateHomeAsync(CreateHomeRequest request)
         {
             return await _soapClient.CreateHomeAsync(request);
@@ -44,6 +75,9 @@ namespace SmartHomes.API.Rest.Clients
         /// <summary>
         /// Atualiza uma casa via SOAP
         /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<SoapResponse<bool>> UpdateHomeAsync(Guid id, UpdateHomeRequest request)
         {
             return await _soapClient.UpdateHomeAsync(id, request);
@@ -52,14 +86,12 @@ namespace SmartHomes.API.Rest.Clients
         /// <summary>
         /// Remove uma casa via SOAP
         /// </summary>
-        public async Task<SoapResponse<bool>> DeleteHomeAsync(Guid id)
+        /// <param name="id"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<SoapResponse<bool>> DeleteHomeAsync(Guid id, Guid userId)
         {
-            return await _soapClient.DeleteHomeAsync(id);
-        }
-
-        public async Task<SoapResponse<HomeWithWeatherDto>> GetHomeWithWeatherAsync(Guid id)
-        {
-            return await _soapClient.GetHomeWithWeatherAsync(id);
+            return await _soapClient.DeleteHomeAsync(id, userId);
         }
     }
 }

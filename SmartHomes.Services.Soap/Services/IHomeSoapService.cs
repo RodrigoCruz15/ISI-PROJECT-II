@@ -19,6 +19,14 @@ public interface IHomeSoapService
     Task<SoapResponse<HomeDto>> GetHomeByIdAsync(Guid id);
 
     /// <summary>
+    /// Obtém casas pelo UserId via SOAP
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [OperationContract]
+    Task<SoapResponse<List<HomeDto>>> GetHomesByUserIdAsync(Guid userId);
+
+    /// <summary>
     /// Obtém todas as casas via SOAP
     /// </summary>
     [OperationContract]
@@ -40,7 +48,7 @@ public interface IHomeSoapService
     /// Remove uma casa via SOAP
     /// </summary>
     [OperationContract]
-    Task<SoapResponse<bool>> DeleteHomeAsync(Guid id);
+    Task<SoapResponse<bool>> DeleteHomeAsync(Guid id, Guid userId);
 
     /// <summary>
     /// Obtem casa com dados meteorologicos via SOAP

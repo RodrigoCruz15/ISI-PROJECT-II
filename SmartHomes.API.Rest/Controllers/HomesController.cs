@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SmartHomes.API.Rest.Clients;
 using SmartHomes.Domain.DTO;
@@ -7,6 +8,7 @@ namespace SmartHomes.API.Rest.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class HomesController : ControllerBase
     {
         private readonly HomeSoapClient _soapClient;
@@ -17,14 +19,23 @@ namespace SmartHomes.API.Rest.Controllers
         }
 
         /// <summary>
-        /// Obtém todas as casas
+        /// Obtem todas as casas do utilizador autenticado
         /// </summary>
         /// <returns>Lista de casas</returns>
         [HttpGet]
         [ProducesResponseType(typeof(List<HomeDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllHomes()
         {
-            var response = await _soapClient.GetAllHomesAsync();
+            // Obter ID do utilizador do token JWT
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            var userId = Guid.Parse(userIdClaim);
+
+            // Buscar apenas casas deste utilizador
+            var response = await _soapClient.GetHomesByUserIdAsync(userId);
 
             if (!response.Success)
                 return BadRequest(new { message = response.Message });
@@ -38,6 +49,7 @@ namespace SmartHomes.API.Rest.Controllers
         /// <param name="id">ID da casa</param>
         /// <returns>Dados da casa</returns>
         [HttpGet("{id}")]
+        [Authorize]
         [ProducesResponseType(typeof(HomeDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetHomeById(Guid id)
@@ -50,16 +62,27 @@ namespace SmartHomes.API.Rest.Controllers
             return Ok(response.Data);
         }
 
+
+
         /// <summary>
         /// Cria uma nova casa
         /// </summary>
-        /// <param name="request">Dados da casa a criar</param>
+        /// <param name="request">Dados da casa</param>
         /// <returns>Casa criada</returns>
         [HttpPost]
         [ProducesResponseType(typeof(HomeDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHome([FromBody] CreateHomeRequest request)
         {
+            // Obter ID do utilizador do token JWT
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            // Definir UserId automaticamente
+            request.UserId = Guid.Parse(userIdClaim);
+
             var response = await _soapClient.CreateHomeAsync(request);
 
             if (!response.Success)
@@ -79,6 +102,7 @@ namespace SmartHomes.API.Rest.Controllers
         /// <param name="request">Novos dados da casa</param>
         /// <returns>Resultado da operação</returns>
         [HttpPut("{id}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -95,17 +119,33 @@ namespace SmartHomes.API.Rest.Controllers
         /// <summary>
         /// Remove uma casa
         /// </summary>
-        /// <param name="id">ID da casa a remover</param>
-        /// <returns>Resultado da operação</returns>
+        /// <param name="id">ID da casa</param>
+        /// <returns>Resultado da operacao</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> DeleteHome(Guid id)
         {
-            var response = await _soapClient.DeleteHomeAsync(id);
+            // Obter ID do utilizador autenticado
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            var userId = Guid.Parse(userIdClaim);
+
+            // Enviar ambos para validar ownership
+            var response = await _soapClient.DeleteHomeAsync(id, userId);
 
             if (!response.Success)
+            {
+                // Se for erro de permissão
+                if (response.Message.Contains("permissão"))
+                    return StatusCode(403, new { message = response.Message });
+
                 return NotFound(new { message = response.Message });
+            }
 
             return NoContent();
         }
@@ -116,6 +156,7 @@ namespace SmartHomes.API.Rest.Controllers
         /// <param name="id">ID da casa</param>
         /// <returns>Casa com clima e comparacao</returns>
         [HttpGet("{id}/weather")]
+        [Authorize]
         [ProducesResponseType(typeof(HomeWithWeatherDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetHomeWithWeather(Guid id)
