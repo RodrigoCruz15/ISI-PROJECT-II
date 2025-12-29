@@ -1,9 +1,11 @@
-﻿using SmartHomes.Domain.DTO;
-using SmartHomes.Domain.Entities;
-using SmartHomes.Services.Soap.Models;
+﻿using System;
+using System.Collections.Generic;
 using System.ServiceModel;
+using System.Threading.Tasks; // Adicionado para suportar Task
+using SmartHomes.Domain.DTO;
+using SmartHomes.Domain.Models;
 
-namespace SmartHomes.Services.Soap.Services
+namespace SmartHomes.Domain.Interfaces
 {
     [ServiceContract]
     public interface ISensorReadingSoapService

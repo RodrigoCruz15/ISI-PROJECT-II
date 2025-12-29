@@ -1,7 +1,10 @@
-﻿using SmartHomes.Domain.DTO;
+﻿using System;
+using System.Collections.Generic;
 using System.ServiceModel;
-using SmartHomes.Services.Soap.Services;
-using SmartHomes.Services.Soap.Models;
+using System.Threading.Tasks;
+using SmartHomes.Domain.DTO;
+using SmartHomes.Domain.Models;
+using SmartHomes.Domain.Interfaces;
 
 namespace SmartHomes.API.Rest.Clients
 {
@@ -11,9 +14,21 @@ namespace SmartHomes.API.Rest.Clients
 
         public SensorSoapClient(string soapServiceUrl)
         {
+            // 1. Criar o binding básico
             var binding = new BasicHttpBinding();
+
+            // 2. CORREÇÃO CRÍTICA: Ativar segurança de transporte para HTTPS
+            if (soapServiceUrl.StartsWith("https", StringComparison.OrdinalIgnoreCase))
+            {
+                binding.Security.Mode = BasicHttpSecurityMode.Transport;
+            }
+
             var endpoint = new EndpointAddress(soapServiceUrl);
+
+            // 3. Criar a fábrica de canais
             var channelFactory = new ChannelFactory<ISensorSoapService>(binding, endpoint);
+
+            // O erro ocorria aqui porque o .NET validava o esquema antes de criar o canal
             _soapClient = channelFactory.CreateChannel();
         }
 

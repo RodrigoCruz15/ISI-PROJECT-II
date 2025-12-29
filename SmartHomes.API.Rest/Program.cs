@@ -8,8 +8,13 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtSecret = builder.Configuration["Jwt:Secret"];
-var soapServiceUrl = builder.Configuration["SoapService:Url"] ?? "http://localhost:5001";
+var jwtSecret = builder.Configuration["JwtSecret"]
+                ?? builder.Configuration["Jwt:Secret"]
+                ?? "zGOhnLACeFOmnBEyAGNB9IKUcvjDquzf!";
+
+// COLOQUE O LINK DIRETO AQUI PARA TESTE (SEM VARIAVEIS DO AZURE)
+var soapServiceUrl = "https://smarthomesservicessoap-c9ezdeb5caedeagz.francecentral-01.azurewebsites.net/";
+
 
 
 builder.Services.AddControllers()
@@ -22,7 +27,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5500", "http://127.0.0.1:5500")
+        policy.WithOrigins("http://localhost:5500", "http://127.0.0.1:5500", "https://rodrigocruz15.github.io")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });

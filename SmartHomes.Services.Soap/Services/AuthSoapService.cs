@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ServiceModel;
 using System.Threading.Tasks;
 using SmartHomes.Domain.DTO;
+using SmartHomes.Services.Soap.Services;
+using SmartHomes.Domain.Models;
 using SmartHomes.Domain.Interfaces;
-using SmartHomes.Services.Soap.Models;
 
 namespace SmartHomes.Services.Soap.Services;
 
