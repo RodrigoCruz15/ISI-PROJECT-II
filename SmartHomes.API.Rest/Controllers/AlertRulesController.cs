@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SmartHomes.API.Rest.Clients;
 using SmartHomes.Domain.DTO;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SmartHomes.API.Rest.Controllers
 {
@@ -14,6 +15,7 @@ namespace SmartHomes.API.Rest.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class AlertRulesController : ControllerBase
     {
         private readonly AlertRuleSoapClient _soapClient;

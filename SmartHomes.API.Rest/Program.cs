@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "zGOhnLACeFOmnBEyAGNB9IKUcvjDquzf";
+var jwtSecret = builder.Configuration["Jwt:Secret"];
 var soapServiceUrl = builder.Configuration["SoapService:Url"] ?? "http://localhost:5001";
 
 
@@ -106,11 +106,9 @@ app.UseCors("AllowFrontend");
 
 
 // Configurar pipeline HTTP
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
 //app.UseHttpsRedirection();
 

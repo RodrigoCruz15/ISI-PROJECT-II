@@ -49,7 +49,6 @@ namespace SmartHomes.API.Rest.Controllers
         /// <param name="id">ID da casa</param>
         /// <returns>Dados da casa</returns>
         [HttpGet("{id}")]
-        [Authorize]
         [ProducesResponseType(typeof(HomeDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetHomeById(Guid id)
@@ -102,7 +101,6 @@ namespace SmartHomes.API.Rest.Controllers
         /// <param name="request">Novos dados da casa</param>
         /// <returns>Resultado da operação</returns>
         [HttpPut("{id}")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -156,7 +154,6 @@ namespace SmartHomes.API.Rest.Controllers
         /// <param name="id">ID da casa</param>
         /// <returns>Casa com clima e comparacao</returns>
         [HttpGet("{id}/weather")]
-        [Authorize]
         [ProducesResponseType(typeof(HomeWithWeatherDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetHomeWithWeather(Guid id)
